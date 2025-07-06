@@ -1,0 +1,2 @@
+ALTER TABLE "tempUser" ADD COLUMN "tempUserId" integer;--> statement-breakpoint
+ALTER TABLE "tempUser" ADD CONSTRAINT "tempUser_tempUserId_tempUser_id_fk" FOREIGN KEY ("tempUserId") REFERENCES "public"."tempUser"("id") ON DELETE no action ON UPDATE no action;
