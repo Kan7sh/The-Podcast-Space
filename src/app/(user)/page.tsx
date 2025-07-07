@@ -4,18 +4,14 @@ import SignedIn from "@/components/SignedIn";
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -37,14 +33,40 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { createRoom } from "@/feature/room/actions/createRoom";
 import { cn } from "@/lib/utils";
+import { useRoom } from "@/store/context/RoomContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown, Check } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 
 export default function Home() {
+  const { setIsRoomCreating, setNumberOfParticipants, setRoomName } = useRoom();
+  const router = useRouter();
+  const session = useSession();
+
+  const handleCreateRoom = async (data: any) => {
+    let roomId = null;
+
+    if (session.data != null) {
+      roomId = await createRoom({
+        roomName: data.roomName,
+        numberOfParticipants: Number(data.numberOfParticipants),
+        hostEmail: session.data.user.email,
+      });
+      setIsRoomCreating(true);
+      setRoomName(data.roomName);
+      setNumberOfParticipants(data.numberOfParticipants);
+      router.push(`/room/${roomId}`);
+    } else {
+      toast("There was some error creating the room");
+    }
+  };
+
   async function logout() {
     await signOut();
   }
@@ -63,19 +85,18 @@ export default function Home() {
 
   const FormSchema = z.object({
     roomName: z.string({ required_error: "Please enter the room name" }),
-    language: z.string(),
+    numberOfParticipants: z.string(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      language: "5", // Set default to 5 participants
+      numberOfParticipants: "5",
+      roomName: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
-  }
+  const onSubmit = () => {};
 
   return (
     <SignedIn>
@@ -84,104 +105,135 @@ export default function Home() {
         <Button>Profile</Button>
         <Button>About</Button>
         <Dialog>
-          <form>
-            <DialogTrigger asChild>
-              <Button>Create a room</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Create a room</DialogTitle>
-                <DialogDescription>
-                  Enter the room name and number of Participants
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4">
-                <div className="grid gap-3">
-                  <Label htmlFor="name-1">Room name</Label>
-                  <Input id="name-1" name="roomName" />
-                </div>
-                <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6"
-                  >
-                    <FormField
-                      control={form.control}
-                      name="language"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Room Participants</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className={cn(
-                                    "w-[200px] justify-between",
-                                    !field.value && "text-muted-foreground"
-                                  )}
-                                >
-                                  {field.value
-                                    ? roomParticipantsNumber.find(
-                                        (numberOfParticipants) =>
-                                          numberOfParticipants.value ===
-                                          field.value
-                                      )?.label
-                                    : "Select participants..."}
-                                  <ChevronsUpDown className="opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[200px] p-0">
-                              <Command>
-                                <CommandList>
-                                  <CommandGroup>
-                                    {roomParticipantsNumber.map(
-                                      (participant) => (
-                                        <CommandItem
-                                          value={participant.label}
-                                          key={participant.value}
-                                          onSelect={() => {
-                                            form.setValue(
-                                              "language",
-                                              participant.value
-                                            );
-                                          }}
-                                        >
-                                          {participant.label}
-                                          <Check
-                                            className={cn(
-                                              "ml-auto h-4 w-4",
-                                              participant.value === field.value
-                                                ? "opacity-100"
-                                                : "opacity-0"
-                                            )}
-                                          />
-                                        </CommandItem>
-                                      )
-                                    )}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                          <FormDescription>
-                            Select the number of participants for the room.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit">Create</Button>
-                  </form>
-                </Form>
-              </div>
-            </DialogContent>
-          </form>
+          <DialogTrigger asChild>
+            <Button>Create a room</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Create a room</DialogTitle>
+              <DialogDescription>
+                Enter the room name and number of Participants
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleCreateRoom)}
+                  className="space-y-6"
+                >
+                  <FormField
+                    name="roomName"
+                    control={form.control}
+                    render={({ field }) => ( 
+                      <FormItem>
+                        <FormLabel>Room Name</FormLabel>
+
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="numberOfParticipants"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Room Participants</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className={cn(
+                                  "w-[200px] justify-between",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value
+                                  ? roomParticipantsNumber.find(
+                                      (numberOfParticipants) =>
+                                        numberOfParticipants.value ===
+                                        field.value
+                                    )?.label
+                                  : "Select participants..."}
+                                <ChevronsUpDown className="opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0">
+                            <Command>
+                              <CommandList>
+                                <CommandGroup>
+                                  {roomParticipantsNumber.map((participant) => (
+                                    <CommandItem
+                                      value={participant.label}
+                                      key={participant.value}
+                                      onSelect={() => {
+                                        form.setValue(
+                                          "numberOfParticipants",
+                                          participant.value
+                                        );
+                                      }}
+                                    >
+                                      {participant.label}
+                                      <Check
+                                        className={cn(
+                                          "ml-auto h-4 w-4",
+                                          participant.value === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                      />
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FormDescription>
+                          Select the number of participants for the room.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit">Create</Button>
+                </form>
+              </Form>
+            </div>
+          </DialogContent>
         </Dialog>
 
-        <Button>Join a Room</Button>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button>Join a Room</Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Join room</DialogTitle>
+
+              <DialogDescription>Enter the room Id to join</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4">
+              <div className="grid gap-3">
+                <Label htmlFor="name-1">Room Id</Label>
+                <Input id="name-1" name="roomName" />
+              </div>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  <Button type="submit">Join</Button>
+                </form>
+              </Form>
+            </div>
+          </DialogContent>
+        </Dialog>
         <Button>Past recordings</Button>
       </div>
     </SignedIn>
