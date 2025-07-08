@@ -1,6 +1,10 @@
 "use client";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -8,7 +12,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRoom } from "@/store/context/RoomContext";
-import { Camera, CameraOff, Check, Copy, Mic, MicOff } from "lucide-react";
+import {
+  Camera,
+  CameraOff,
+  Check,
+  Copy,
+  Mic,
+  MicOff,
+  Send,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -685,9 +697,115 @@ export default function RoomUI({ roomId }: { roomId: string }) {
     }
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
+  const UserCard = ({ user }: { user: User }) => {
+    const [blob, setBlob] = useState<Blob>();
+    const visualizerRef = useRef<HTMLCanvasElement>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
+    const dataArrayRef = useRef<Uint8Array | null>(null);
+    const animationIdRef = useRef<number | null>(null);
+    const mediaStreamRef = useRef<MediaStream | null>(null);
+    const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+    const processorRef = useRef<ScriptProcessorNode | null>(null);
+
+    useEffect(() => {
+      // Get the remote stream for this user from your remoteStreamsRef
+      const remoteStream = remoteStreamsRef.current.get(user.userName);
+
+      if (remoteStream) {
+        mediaStreamRef.current = remoteStream;
+
+        // Set up audio context and processor for visualization
+        setupAudioVisualization(remoteStream);
+
+        // Create a blob from the audio stream for the visualizer
+        const mediaRecorder = new MediaRecorder(remoteStream);
+        const chunks: BlobPart[] = [];
+
+        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "audio/webm" });
+          setBlob(blob);
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), 100);
+      }
+
+      return () => {
+        // Clean up audio context when component unmounts
+        if (
+          audioContextRef.current &&
+          audioContextRef.current.state !== "closed"
+        ) {
+          audioContextRef.current.close();
+        }
+        if (processorRef.current) {
+          processorRef.current.disconnect();
+        }
+        if (audioSourceRef.current) {
+          audioSourceRef.current.disconnect();
+        }
+      };
+    }, [user.userName]);
+
+    const setupAudioVisualization = (stream: MediaStream) => {
+      try {
+        const audioContext = new (window.AudioContext ||
+          (window as any).webkitAudioContext)();
+        audioContextRef.current = audioContext;
+
+        const audioSource = audioContext.createMediaStreamSource(stream);
+        audioSourceRef.current = audioSource;
+
+        const processor = audioContext.createScriptProcessor(2048, 1, 1);
+        processorRef.current = processor;
+
+        processor.onaudioprocess = (e) => {
+          // You can process audio data here if needed for visualization
+        };
+
+        audioSource.connect(processor);
+        processor.connect(audioContext.destination);
+      } catch (error) {
+        console.error("Error setting up audio visualization:", error);
+      }
+    };
+
+    return (
+      <Card className={`relative`}>
+        <CardContent className="p-4">
+          <div className="flex flex-col items-center space-y-3">
+            <div className="relative">
+              <Avatar className="w-16 h-16">
+                <AvatarImage src="" />
+                <AvatarFallback className="text-lg">
+                  {getInitials(user.userName)}
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="text-center">
+              <p className="font-medium text-sm truncate w-full">
+                {user.userName}
+              </p>
+            </div>
+            <div className="w-full"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
   return (
     <div className="w-screen h-screen">
-      <div className="flex flex-col p-3">
+      <div className="flex flex-col p-3 gap-3">
         <Card>
           <div className="px-5">
             <div className="flex flex-row justify-between items-center">
@@ -772,11 +890,85 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                   </Tooltip>
                 </TooltipProvider>
 
-                <Button className="bg-red-700 text-white">Leave Room</Button>
+                <Button
+                  onClick={handleLeaveRoom}
+                  className="bg-red-700 text-white"
+                >
+                  Leave Room
+                </Button>
               </div>
             </div>
           </div>
         </Card>
+        <div className="flex flex-row gap-3">
+          <Card className="flex-2 min-h-[500px]">
+            <CardContent className="space-y-6">
+              {/* Users Grid */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">
+                  Participants ({users.length})
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                  {users.map((user) => (
+                    // <div></div
+                    <UserCard key={user.userName} user={user} />
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <div className="flex-1">
+            <Card className="h-[500px] flex flex-col">
+              <CardContent className="p-4 flex flex-col h-full">
+                {/* Messages */}
+                <ScrollArea className="flex-1 mb-4 p-2">
+                  <div className="space-y-2">
+                    {messages.map((msg, index) => (
+                      <div key={index} className="mb-2">
+                        {msg.type === "system" ? (
+                          <p className="text-sm text-muted-foreground italic">
+                            {msg.message}
+                          </p>
+                        ) : (
+                          <div>
+                            <span
+                              className={`font-semibold ${
+                                msg.userName === session.data?.user.email
+                                  ? "text-zinc-50"
+                                  : "text-zinc-500"
+                              }`}
+                            >
+                              {msg.userName}:
+                            </span>
+                            <span className="ml-2">{msg.message}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+
+                <div className="flex gap-2">
+                  <Input
+                    value={messageInput}
+                    onChange={(e) => setMessageInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type a message..."
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={sendMessage}
+                    disabled={!messageInput.trim()}
+                    size="sm"
+                    className="px-3"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

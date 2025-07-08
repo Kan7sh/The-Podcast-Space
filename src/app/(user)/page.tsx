@@ -39,6 +39,7 @@ import { useRoom } from "@/store/context/RoomContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown, Check } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -96,13 +97,24 @@ export default function Home() {
     },
   });
 
-  const onSubmit = () => {};
+  const joinRoomForm = useForm({
+    defaultValues: {
+      roomId: "",
+    },
+  });
+  const joinRoom = (data: any) => {
+    setIsRoomCreating(false);
+    setRoomName(data.roomId);
+    router.push(`/room/${data.roomId}`);
+  };
 
   return (
     <SignedIn>
       <div className="grid grid-rows items-center justify-items-center min-h-screen p-8 pb-20 gap-8 sm:p-20 font-[family-name:var(--font-geist-sans)]">
         <Button onClick={logout}>Logout</Button>
-        <Button>Profile</Button>
+        <Button asChild>
+          <Link href={"/editprofile"}>Edit Profile</Link>
+        </Button>
         <Button>About</Button>
         <Dialog>
           <DialogTrigger asChild>
@@ -124,7 +136,7 @@ export default function Home() {
                   <FormField
                     name="roomName"
                     control={form.control}
-                    render={({ field }) => ( 
+                    render={({ field }) => (
                       <FormItem>
                         <FormLabel>Room Name</FormLabel>
 
@@ -219,15 +231,26 @@ export default function Home() {
               <DialogDescription>Enter the room Id to join</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4">
-              <div className="grid gap-3">
-                <Label htmlFor="name-1">Room Id</Label>
-                <Input id="name-1" name="roomName" />
-              </div>
-              <Form {...form}>
+              <div className="grid gap-3"></div>
+              <Form {...joinRoomForm}>
                 <form
-                  onSubmit={form.handleSubmit(onSubmit)}
+                  onSubmit={joinRoomForm.handleSubmit(joinRoom)}
                   className="space-y-6"
                 >
+                  <FormField
+                    name="roomId"
+                    control={joinRoomForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Room Id</FormLabel>
+
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <Button type="submit">Join</Button>
                 </form>
               </Form>

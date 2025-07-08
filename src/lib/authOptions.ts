@@ -6,7 +6,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
-export const AuthOptions:NextAuthOptions = {
+export const AuthOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -38,12 +38,31 @@ export const AuthOptions:NextAuthOptions = {
 
       return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
+    async jwt({ trigger, token, user, account }) {
+      if (trigger === "update" || account?.provider === "google" || user) {
+        const email = user?.email || token.email;
+        if (email) {
+          const dbUser = await db.query.UserTable.findFirst({
+            where: eq(UserTable.email, email as string),
+          });
+
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.name = dbUser.name;
+            token.email = dbUser.email;
+            token.picture = dbUser.imageUrl;
+          }
+        }
+      }
+
+      // Handle credentials sign in
+      if (user && !account?.provider) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        token.picture = user.image;
       }
+
       return token;
     },
     async session({ session, token }) {
@@ -53,6 +72,7 @@ export const AuthOptions:NextAuthOptions = {
           id: token.id as string,
           name: token.name as string,
           email: token.email as string,
+          image: token.picture as string,
         };
       }
       return session;
@@ -88,6 +108,7 @@ export const AuthOptions:NextAuthOptions = {
               id: String(user.id),
               name: user.name,
               email: user.email,
+              image: user.imageUrl,
             };
           } else {
             return null;
@@ -98,4 +119,4 @@ export const AuthOptions:NextAuthOptions = {
       },
     }),
   ],
-}
+};
