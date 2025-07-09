@@ -27,6 +27,8 @@ import { verifyUserExists } from "@/feature/auth/actions/verifyUserExists";
 import { sendOTPEmail } from "@/services/nodemailer/sendEmail";
 import { addTempUser } from "@/feature/auth/db/auth";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { LoadingSwap } from "@/components/LoadingSwap";
 
 const FormSchema = z.object({
   name: z
@@ -64,6 +66,8 @@ const FormSchema = z.object({
 });
 
 export function SignupForm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -76,6 +80,7 @@ export function SignupForm() {
   type FormData = z.infer<typeof FormSchema>;
 
   const handleSignup = async (data: FormData) => {
+    setIsLoading(true);
     const response = await verifyUserExists(data.email);
     if (!response) {
       const tempUserId = await addTempUser({
@@ -93,7 +98,9 @@ export function SignupForm() {
 
       router.push(`/signup/verifyotp?${searchParams.toString()}`);
       console.log("User added successfully");
+      setIsLoading(false);
     } else {
+      setIsLoading(false);
       toast.error("User already exists. Please login instead.");
       return;
     }
@@ -160,8 +167,8 @@ export function SignupForm() {
               </CardContent>
               <br />
               <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full">
-                  Signup
+                <Button type="submit" className="w-full " disabled={isLoading}>
+                  <LoadingSwap isLoading={isLoading}>Signup</LoadingSwap>
                 </Button>
                 <Button asChild variant="outline" className="w-full">
                   <Link href="/login">Login</Link>

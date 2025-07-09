@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingSwap } from "@/components/LoadingSwap";
 import SignedIn from "@/components/SignedIn";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { createRoom } from "@/feature/room/actions/createRoom";
+import { findActiveRoom } from "@/feature/room/db/room";
 import { cn } from "@/lib/utils";
 import { useRoom } from "@/store/context/RoomContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,6 +43,7 @@ import { ChevronsUpDown, Check } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -49,8 +52,11 @@ export default function Home() {
   const { setIsRoomCreating, setNumberOfParticipants, setRoomName } = useRoom();
   const router = useRouter();
   const session = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleCreateRoom = async (data: any) => {
+    setIsLoading(true);
+
     let roomId = null;
 
     if (session.data != null) {
@@ -62,6 +68,8 @@ export default function Home() {
       setIsRoomCreating(true);
       setRoomName(data.roomName);
       setNumberOfParticipants(data.numberOfParticipants);
+      setIsLoading(false);
+
       router.push(`/room/${roomId}`);
     } else {
       toast("There was some error creating the room");
@@ -102,10 +110,23 @@ export default function Home() {
       roomId: "",
     },
   });
-  const joinRoom = (data: any) => {
-    setIsRoomCreating(false);
-    setRoomName(data.roomId);
-    router.push(`/room/${data.roomId}`);
+  const joinRoom = async (data: any) => {
+    setIsLoading(true);
+
+    const room = await findActiveRoom(data.roomId);
+    setIsLoading(false);
+
+    if (room) {
+      setIsRoomCreating(false);
+      setRoomName(room.name);
+      router.push(`/room/${data.roomId}`);
+    } else {
+      toast.error("Room Doesn't exists");
+    }
+  };
+
+  const moveToPasRecordings = () => {
+    router.push("/recordings");
   };
 
   return (
@@ -213,7 +234,9 @@ export default function Home() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit">Create</Button>
+                  <Button type="submit" disabled={isLoading}>
+                    <LoadingSwap isLoading={isLoading}> Create</LoadingSwap>
+                  </Button>
                 </form>
               </Form>
             </div>
@@ -251,13 +274,15 @@ export default function Home() {
                     )}
                   />
 
-                  <Button type="submit">Join</Button>
+                  <Button type="submit" disabled={isLoading}>
+                    <LoadingSwap isLoading={isLoading}>Join</LoadingSwap>
+                  </Button>
                 </form>
               </Form>
             </div>
           </DialogContent>
         </Dialog>
-        <Button>Past recordings</Button>
+        <Button onClick={moveToPasRecordings}>Past recordings</Button>
       </div>
     </SignedIn>
   );

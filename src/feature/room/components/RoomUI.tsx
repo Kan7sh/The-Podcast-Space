@@ -1,5 +1,6 @@
 "use client";
 
+import AudioVisualizer from "@/feature/room/components/AudioVisualizer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -99,23 +100,20 @@ export default function RoomUI({ roomId }: { roomId: string }) {
   const { roomName, numberOfParticipants, isRoomCreating } = useRoom();
   const isCreating = isRoomCreating ?? false;
   const wsRef = useRef<WebSocket | null>(null);
-  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "wss:";
+  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   const wsPort = process.env.NEXT_PUBLIC_WS_PORT;
   const wsHost = process.env.NEXT_PUBLIC_WS_HOST;
   const socket = new WebSocket(`${wsProtocol}//${wsHost}:${wsPort}`);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
-  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
   const peerConnectionsRef = useRef<Map<string, RTCPeerConnection>>(new Map());
-  const localVideoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingStartTimeRef = useRef<number>(0);
   const [isRecording, setIsRecording] = useState(false);
   const remoteStreamsRef = useRef<Map<string, MediaStream>>(new Map());
   const [isMuted, setIsMuted] = useState(false);
-  const [isVideoMuted, setIsVideoMuted] = useState(false);
   const [messageInput, setMessageInput] = useState<string>("");
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
@@ -205,24 +203,37 @@ export default function RoomUI({ roomId }: { roomId: string }) {
         if (remoteStream) {
           console.log("Setting remote stream for:", peerId);
           remoteStreamsRef.current.set(peerId, remoteStream);
-          const videoElement = document.getElementById(
-            `video-${peerId}`
-          ) as HTMLVideoElement;
-          if (videoElement) {
-            videoElement.srcObject = remoteStream;
-            videoElement
-              .play()
-              .catch((e) => console.error("Error playing remote video:", e));
-          }
+          // const videoElement = document.getElementById(
+          //   `video-${peerId}`
+          // ) as HTMLVideoElement;
+          // if (videoElement) {
+          //   videoElement.srcObject = remoteStream;
+          //   videoElement
+          //     .play()
+          //     .catch((e) => console.error("Error playing remote video:", e));
+          // }
 
           const audioElement = document.getElementById(
             `audio-${peerId}`
           ) as HTMLAudioElement;
           if (audioElement) {
-            audioElement.srcObject = remoteStream;
-            audioElement
-              .play()
-              .catch((e) => console.error("Error playing remote audio:", e));
+            // Only set srcObject if it's different from current
+            if (audioElement.srcObject !== remoteStream) {
+              audioElement.srcObject = remoteStream;
+
+              // Wait for loadedmetadata before playing
+              audioElement.addEventListener(
+                "loadedmetadata",
+                () => {
+                  audioElement
+                    .play()
+                    .catch((e) =>
+                      console.error("Error playing remote audio:", e)
+                    );
+                },
+                { once: true }
+              );
+            }
           }
         }
       };
@@ -303,7 +314,6 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                 console.log("creating offer for:", data.userName);
                 const offer = await peerConnection.createOffer({
                   offerToReceiveAudio: true,
-                  offerToReceiveVideo: true,
                 });
 
                 await peerConnection.setLocalDescription(offer);
@@ -472,13 +482,13 @@ export default function RoomUI({ roomId }: { roomId: string }) {
     try {
       console.log("Requesting media devices....");
 
-      let constraints = { audio: true, video: true };
+      let constraints = { audio: true };
       let stream: MediaStream;
       try {
         stream = await navigator.mediaDevices.getUserMedia(constraints);
       } catch (videoError) {
         toast("Unable to open the Camera");
-        constraints = { audio: true, video: false };
+        constraints = { audio: true };
         stream = await navigator.mediaDevices.getUserMedia(constraints);
       }
 
@@ -488,14 +498,13 @@ export default function RoomUI({ roomId }: { roomId: string }) {
       );
       localStreamRef.current = stream;
       setIsVoiceEnabled(true);
-      setIsVideoEnabled(stream.getVideoTracks().length > 0);
-      if (localVideoRef.current && stream.getVideoTracks().length > 0) {
-        console.log("Setting Local video stream");
-        localVideoRef.current.srcObject = stream;
-        localVideoRef.current
-          .play()
-          .catch((e) => console.error("Error playing local video:", e));
-      }
+      // if (localVideoRef.current && stream.getVideoTracks().length > 0) {
+      //   console.log("Setting Local video stream");
+      //   localVideoRef.current.srcObject = stream;
+      //   localVideoRef.current
+      //     .play()
+      //     .catch((e) => console.error("Error playing local video:", e));
+      // }
 
       if (stream.getAudioTracks().length > 0) {
         const audioTrack = stream.getAudioTracks()[0];
@@ -552,13 +561,12 @@ export default function RoomUI({ roomId }: { roomId: string }) {
     } catch (error) {
       console.error("Error accessing media devices:", error);
       setIsVoiceEnabled(false);
-      setIsVideoEnabled(false);
       toast("Could not access camera/microphone. Please check permissions.");
     }
   };
 
   const startRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
+    if (mediaRecorderRef.current && !isRecording) {
       console.log("Starting audio recording");
       recordingStartTimeRef.current = Date.now();
       audioChunksRef.current = [];
@@ -639,17 +647,6 @@ export default function RoomUI({ roomId }: { roomId: string }) {
     }
   };
 
-  const toggleVideo = () => {
-    if (localStreamRef.current) {
-      const videoTracks = localStreamRef.current.getVideoTracks();
-      videoTracks.forEach((track) => {
-        track.enabled = isVideoMuted;
-      });
-      setIsVideoMuted(!isVideoMuted);
-      console.log("Video", isVideoMuted ? "unmuted" : "muted");
-    }
-  };
-
   const sendMessage = () => {
     if (messageInput.trim() && wsRef.current?.readyState === WebSocket.OPEN) {
       const message = {
@@ -706,79 +703,32 @@ export default function RoomUI({ roomId }: { roomId: string }) {
   };
 
   const UserCard = ({ user }: { user: User }) => {
-    const [blob, setBlob] = useState<Blob>();
-    const visualizerRef = useRef<HTMLCanvasElement>(null);
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const analyserRef = useRef<AnalyserNode | null>(null);
-    const dataArrayRef = useRef<Uint8Array | null>(null);
-    const animationIdRef = useRef<number | null>(null);
-    const mediaStreamRef = useRef<MediaStream | null>(null);
-    const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
-    const processorRef = useRef<ScriptProcessorNode | null>(null);
+    const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     useEffect(() => {
-      // Get the remote stream for this user from your remoteStreamsRef
-      const remoteStream = remoteStreamsRef.current.get(user.userName);
+      const checkForStream = () => {
+        const stream = remoteStreamsRef.current.get(user.userName);
+        if (stream && stream !== remoteStream) {
+          setRemoteStream(stream);
 
-      if (remoteStream) {
-        mediaStreamRef.current = remoteStream;
-
-        // Set up audio context and processor for visualization
-        setupAudioVisualization(remoteStream);
-
-        // Create a blob from the audio stream for the visualizer
-        const mediaRecorder = new MediaRecorder(remoteStream);
-        const chunks: BlobPart[] = [];
-
-        mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, { type: "audio/webm" });
-          setBlob(blob);
-        };
-
-        mediaRecorder.start();
-        setTimeout(() => mediaRecorder.stop(), 100);
-      }
-
-      return () => {
-        // Clean up audio context when component unmounts
-        if (
-          audioContextRef.current &&
-          audioContextRef.current.state !== "closed"
-        ) {
-          audioContextRef.current.close();
-        }
-        if (processorRef.current) {
-          processorRef.current.disconnect();
-        }
-        if (audioSourceRef.current) {
-          audioSourceRef.current.disconnect();
+          // Set srcObject directly to avoid recreation
+          if (audioRef.current && audioRef.current.srcObject !== stream) {
+            audioRef.current.srcObject = stream;
+            audioRef.current
+              .play()
+              .catch((e) => console.error("Error playing remote audio:", e));
+          }
         }
       };
-    }, [user.userName]);
 
-    const setupAudioVisualization = (stream: MediaStream) => {
-      try {
-        const audioContext = new (window.AudioContext ||
-          (window as any).webkitAudioContext)();
-        audioContextRef.current = audioContext;
+      checkForStream();
 
-        const audioSource = audioContext.createMediaStreamSource(stream);
-        audioSourceRef.current = audioSource;
+      // Use a longer interval to reduce overhead
+      const interval = setInterval(checkForStream, 2000);
 
-        const processor = audioContext.createScriptProcessor(2048, 1, 1);
-        processorRef.current = processor;
-
-        processor.onaudioprocess = (e) => {
-          // You can process audio data here if needed for visualization
-        };
-
-        audioSource.connect(processor);
-        processor.connect(audioContext.destination);
-      } catch (error) {
-        console.error("Error setting up audio visualization:", error);
-      }
-    };
+      return () => clearInterval(interval);
+    }, [user.userName]); // Remove 'users' dependency
 
     return (
       <Card className={`relative`}>
@@ -792,17 +742,30 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                 </AvatarFallback>
               </Avatar>
             </div>
+            <audio
+              ref={audioRef}
+              autoPlay
+              playsInline
+              style={{ display: "none" }}
+            />
             <div className="text-center">
               <p className="font-medium text-sm truncate w-full">
                 {user.userName}
               </p>
             </div>
-            <div className="w-full"></div>
+            <div className="w-full">
+              <AudioVisualizer
+                audioStream={remoteStream}
+                colors={["#3b82f6", "#8b5cf6", "#ef4444", "#f59e0b", "#10b981"]}
+                height={30}
+              />
+            </div>{" "}
           </div>
         </CardContent>
       </Card>
     );
   };
+
   return (
     <div className="w-screen h-screen">
       <div className="flex flex-col p-3 gap-3">
@@ -844,41 +807,15 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={toggleVideo}
-                        className={`h-10 w-10 p-0 ${
-                          !isVideoMuted ? "bg-red-100 border-red-300" : ""
-                        }`}
-                      >
-                        {isVideoMuted ? (
-                          <Camera className="h-4 w-4" />
-                        ) : (
-                          <CameraOff className="h-4 w-4 text-red-600" />
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>
-                        {isVideoMuted ? "Turn off camera" : "Turn on camera"}
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
                         onClick={toggleMute}
                         className={`h-10 w-10 p-0 ${
-                          !isMuted ? "bg-red-100 border-red-300" : ""
+                          isMuted ? "bg-red-100      border-red-300" : ""
                         }`}
                       >
                         {isMuted ? (
-                          <Mic className="h-4 w-4" />
-                        ) : (
                           <MicOff className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <Mic className="h-4 w-4" />
                         )}
                       </Button>
                     </TooltipTrigger>

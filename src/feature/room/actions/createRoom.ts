@@ -20,6 +20,7 @@ export async function createRoom({
       numberOfAllowedParticipants: numberOfParticipants,
       roomId: roomId,
       createdAt: new Date(),
+      isActive: true,
     });
     return roomId;
   } else {

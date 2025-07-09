@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingSwap } from "@/components/LoadingSwap";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,12 +21,14 @@ import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 
 export function LoginFrom() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -34,11 +37,13 @@ export function LoginFrom() {
     },
   });
   const onSubmit = async (data: any) => {
+    setIsLoading(true);
     const res = await signIn("credentials", {
       email: data.email,
       password: data.password,
       redirect: true,
     });
+    setIsLoading(false);
     if (res?.ok) {
       router.push("/");
     } else {
@@ -96,8 +101,12 @@ export function LoginFrom() {
                 <br />
               </CardContent>
               <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full cursor-pointer">
-                  Login
+                <Button
+                  type="submit"
+                  className="w-full cursor-pointer"
+                  disabled={isLoading}
+                >
+                  <LoadingSwap isLoading={isLoading}>Login</LoadingSwap>
                 </Button>
                 <Button
                   onClick={signinWithGoogle}

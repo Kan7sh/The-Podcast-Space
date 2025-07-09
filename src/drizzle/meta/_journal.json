@@ -15,6 +15,13 @@
       "when": 1751812366404,
       "tag": "0001_strange_hawkeye",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752073583421,
+      "tag": "0002_simple_monster_badoon",
+      "breakpoints": true
     }
   ]
 }
