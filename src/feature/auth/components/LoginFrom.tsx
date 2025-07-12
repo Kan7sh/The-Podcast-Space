@@ -44,6 +44,7 @@ export function LoginFrom() {
       redirect: true,
     });
     setIsLoading(false);
+    console.log(res);
     if (res?.ok) {
       router.push("/");
     } else {

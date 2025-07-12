@@ -499,21 +499,6 @@ export default function RoomUI({
       remoteStreamsRef.current.clear();
 
       initiatedConnectionsRef.current.clear();
-
-      if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(
-          JSON.stringify({
-            type: "leave_room",
-            roomId,
-            userName: session.data?.user.email,
-            imageUrl: session.data?.user.image,
-            id: session.data?.user.id,
-            roomNumberId: roomNumberId,
-            name: session.data?.user.name,
-          })
-        );
-        socket.close();
-      }
     };
   }, [roomId, session.data?.user.email, isCreating, createPeerConnection]);
 

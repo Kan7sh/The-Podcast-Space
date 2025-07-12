@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/form";
 
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -115,6 +114,16 @@ export default function Home() {
     setIsLoading(true);
 
     const room = await findActiveRoom(data.roomId);
+
+    if (
+      (room?.currentParticiants ?? 0) >=
+      (room?.numberOfAllowedParticipants ?? 0)
+    ) {
+      setIsLoading(false);
+      toast.error("Room is of participants");
+      return;
+    }
+
     const createUserRecording = await createJoinUserRecordings(
       Number(session.data?.user.id),
       room?.id ?? 0

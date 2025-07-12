@@ -16,4 +16,5 @@ export const RoomTable = pgTable("room", {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   endedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   isActive: boolean().default(false),
+  currentParticiants: integer().default(0),
 });

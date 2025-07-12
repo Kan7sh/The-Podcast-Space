@@ -1,0 +1,1 @@
+ALTER TABLE "room" ADD COLUMN "currentParticiants" integer DEFAULT 0;

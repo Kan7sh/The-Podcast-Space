@@ -23,6 +23,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { verifyEmailOtp } from "@/services/nodemailer/verifyOtp";
 import { moveFromTempToUser } from "../actions/moveFromTempToUser";
+import { LoadingSwap } from "@/components/LoadingSwap";
+import { useState } from "react";
 
 const FormSchema = z.object({
   pin: z.string().min(4, {
@@ -35,6 +37,7 @@ export function VerifyOtpCard() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const id = Number(searchParams.get("id")) || 0;
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -44,6 +47,7 @@ export function VerifyOtpCard() {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
     const isOtpVeriffied = await verifyEmailOtp(id, email, data.pin);
 
     if (isOtpVeriffied) {
@@ -61,6 +65,7 @@ export function VerifyOtpCard() {
     } else {
       toast.error("Invalid OTP. Please try again.");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -105,8 +110,8 @@ export function VerifyOtpCard() {
             />
 
             <div className="flex justify-center">
-              <Button type="submit" className="w-full">
-                Submit
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                <LoadingSwap isLoading={isLoading}>Submit</LoadingSwap>
               </Button>
             </div>
           </form>

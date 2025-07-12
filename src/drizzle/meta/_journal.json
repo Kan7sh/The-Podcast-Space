@@ -57,6 +57,13 @@
       "when": 1752306617301,
       "tag": "0007_talented_the_phantom",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752322363752,
+      "tag": "0008_regular_pestilence",
+      "breakpoints": true
     }
   ]
 }
