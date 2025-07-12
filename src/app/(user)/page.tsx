@@ -34,6 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { createJoinUserRecordings } from "@/feature/room/actions/createJoinUserRecordings";
 import { createRoom } from "@/feature/room/actions/createRoom";
 import { findActiveRoom } from "@/feature/room/db/room";
 import { cn } from "@/lib/utils";
@@ -114,7 +115,16 @@ export default function Home() {
     setIsLoading(true);
 
     const room = await findActiveRoom(data.roomId);
+    const createUserRecording = await createJoinUserRecordings(
+      Number(session.data?.user.id),
+      room?.id ?? 0
+    );
     setIsLoading(false);
+
+    if (createUserRecording == false) {
+      toast.error("There was some error creating the room");
+      return;
+    }
 
     if (room) {
       setIsRoomCreating(false);

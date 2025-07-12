@@ -1,0 +1,1 @@
+ALTER TABLE "recordings" RENAME COLUMN "name" TO "fileName";

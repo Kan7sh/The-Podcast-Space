@@ -1,5 +1,6 @@
 import { getUserByEmail } from "@/feature/auth/db/auth";
-import { insertRoomData } from "../db/room";
+import { insertRoomData, insertUserRecordingData } from "../db/room";
+import { insertRecordingsData } from "@/feature/recordings/db/recordings";
 
 export async function createRoom({
   roomName,
@@ -14,7 +15,7 @@ export async function createRoom({
   const user = await getUserByEmail(hostEmail);
 
   if (user != null) {
-    await insertRoomData({
+    const roomNumberId = await insertRoomData({
       name: roomName,
       hostId: user.id,
       numberOfAllowedParticipants: numberOfParticipants,
@@ -22,6 +23,21 @@ export async function createRoom({
       createdAt: new Date(),
       isActive: true,
     });
+
+    const recordingId = await insertRecordingsData({
+      roomId: roomNumberId[0].id,
+      createdAt: new Date(),
+    });
+
+    if (recordingId != null) {
+      await insertUserRecordingData({
+        roomId: roomNumberId[0].id,
+        userId: user.id,
+        recordingId: recordingId[0].id,
+        createdAt: new Date(),
+      });
+    }
+
     return roomId;
   } else {
     return null;
