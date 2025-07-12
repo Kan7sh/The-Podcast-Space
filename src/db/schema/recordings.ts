@@ -7,13 +7,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { RoomTable } from "./room";
 
-export const RecordingsTable = pgTable("recordings", {
-  id: serial().primaryKey(),
-  recordingUrl: varchar(),
-  roomId: integer()
-    .references((): any => RoomTable.id)
-    .notNull(),
-  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
-  recordingCreatedAt: timestamp({ withTimezone: true }),
-  recordingLength: varchar(),
-});
+  export const RecordingsTable = pgTable("recordings", {
+    id: serial().primaryKey(),
+    recordingUrl: varchar(),
+    roomId: integer()
+      .references((): any => RoomTable.id)
+      .notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    recordingCreatedAt: timestamp({ withTimezone: true }),
+    recordingLength: varchar(),
+  });

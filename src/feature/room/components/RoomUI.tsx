@@ -27,6 +27,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { findActiveRoom } from "../db/room";
 
 const iceServers = [
   { urls: "stun:stun.l.google.com:19302" },
@@ -48,6 +49,8 @@ const iceServers = [
 
 interface User {
   userName: string;
+  name: string;
+  imageUrl: string;
   isConnected: boolean;
 }
 
@@ -93,9 +96,14 @@ interface WebSocketMessage {
   }>;
 }
 
-export default function RoomUI({ roomId }: { roomId: string }) {
+export default function RoomUI({
+  roomId,
+  roomNumberId,
+}: {
+  roomId: string;
+  roomNumberId: number;
+}) {
   const [copied, setCopied] = useState(false);
-  const searchParams = useSearchParams();
   const session = useSession();
   const { roomName, numberOfParticipants, isRoomCreating } = useRoom();
   const isCreating = isRoomCreating ?? false;
@@ -156,6 +164,11 @@ export default function RoomUI({ roomId }: { roomId: string }) {
               candidate: event.candidate.toJSON(),
               targetPeer: peerId,
               userName: session.data?.user.email,
+              name: session.data?.user.name,
+
+              imageUrl: session.data?.user.image,
+              id: session.data?.user.id,
+              roomNumberId: roomNumberId,
             })
           );
         }
@@ -253,6 +266,11 @@ export default function RoomUI({ roomId }: { roomId: string }) {
         type: isCreating ? "create_room" : "join_room",
         roomId: roomId,
         userName: session.data?.user.email,
+        name: session.data?.user.name,
+
+        imageUrl: session.data?.user.image,
+        id: session.data?.user.id,
+        roomNumberId: roomNumberId,
       };
       socket.send(JSON.stringify(message));
       initializeWebRTC();
@@ -272,6 +290,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                   type: "start_recording",
                   roomId,
                   userName: session.data?.user.email,
+                  name: session.data?.user.name,
+                  imageUrl: session.data?.user.image,
+                  id: session.data?.user.id,
+                  roomNumberId: roomNumberId,
                 })
               );
             }
@@ -290,6 +312,11 @@ export default function RoomUI({ roomId }: { roomId: string }) {
               type: "user",
               userName: data.userName,
               message: data.message || "",
+              imageUrl: session.data?.user.image,
+              name: session.data?.user.name,
+
+              id: session.data?.user.id,
+              roomNumberId: roomNumberId,
               timestamp: data.timestamp,
             },
           ]);
@@ -325,6 +352,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                       offer: offer,
                       targetPeer: data.userName,
                       userName: session.data?.user.email,
+                      imageUrl: session.data?.user.image,
+                      id: session.data?.user.id,
+                      roomNumberId: roomNumberId,
+                      name: session.data?.user.name,
                     })
                   );
                 }
@@ -361,6 +392,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                     answer: answer,
                     targetPeer: data.userName,
                     userName: session.data?.user.email,
+                    imageUrl: session.data?.user.image,
+                    id: session.data?.user.id,
+                    roomNumberId: roomNumberId,
+                    name: session.data?.user.name,
                   })
                 );
               }
@@ -471,6 +506,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
             type: "leave_room",
             roomId,
             userName: session.data?.user.email,
+            imageUrl: session.data?.user.image,
+            id: session.data?.user.id,
+            roomNumberId: roomNumberId,
+            name: session.data?.user.name,
           })
         );
         socket.close();
@@ -528,6 +567,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                     userName: session.data?.user.email,
                     audioData: base64Data,
                     timestamp: Date.now() - recordingStartTimeRef.current,
+                    imageUrl: session.data?.user.image,
+                    id: session.data?.user.id,
+                    roomNumberId: roomNumberId,
+                    name: session.data?.user.name,
                   })
                 );
               };
@@ -555,6 +598,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
             type: "voice_ready",
             roomId,
             userName: session.data?.user.email as string,
+            imageUrl: session.data?.user.image,
+            id: session.data?.user.id,
+            roomNumberId: roomNumberId,
+            name: session.data?.user.name,
           })
         );
       }
@@ -581,6 +628,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
           roomId,
           userName: session.data?.user.email,
           startTime: recordingStartTimeRef.current,
+          imageUrl: session.data?.user.image,
+          id: session.data?.user.id,
+          roomNumberId: roomNumberId,
+          name: session.data?.user.name,
         })
       );
     }
@@ -605,6 +656,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                       userName: session.data?.user.email,
                       audioData: base64Data,
                       timestamp: Date.now() - recordingStartTimeRef.current,
+                      imageUrl: session.data?.user.image,
+                      id: session.data?.user.id,
+                      roomNumberId: roomNumberId,
+                      name: session.data?.user.name,
                     })
                   );
                 };
@@ -629,6 +684,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
               type: "recording_stopped",
               roomId,
               userName: session.data?.user.email,
+              imageUrl: session.data?.user.image,
+              id: session.data?.user.id,
+              roomNumberId: roomNumberId,
+              name: session.data?.user.name,
             })
           );
         }
@@ -655,6 +714,11 @@ export default function RoomUI({ roomId }: { roomId: string }) {
         userName: session.data?.user.email,
         message: messageInput.trim(),
         timestamp: new Date().toISOString(),
+        imageUrl: session.data?.user.image,
+        id: session.data?.user.id,
+        name: session.data?.user.name,
+
+        roomNumberId: roomNumberId,
       };
       wsRef.current.send(JSON.stringify(message));
       setMessageInput("");
@@ -671,6 +735,10 @@ export default function RoomUI({ roomId }: { roomId: string }) {
             type: "leave_room",
             roomId,
             userName: session.data?.user.email,
+            imageUrl: session.data?.user.image,
+            id: session.data?.user.id,
+            roomNumberId: roomNumberId,
+            name: session.data?.user.name,
           })
         );
       }
@@ -736,9 +804,9 @@ export default function RoomUI({ roomId }: { roomId: string }) {
           <div className="flex flex-col items-center space-y-3">
             <div className="relative">
               <Avatar className="w-16 h-16">
-                <AvatarImage src="" />
+                <AvatarImage src={user.imageUrl} />
                 <AvatarFallback className="text-lg">
-                  {getInitials(user.userName)}
+                  {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -749,9 +817,7 @@ export default function RoomUI({ roomId }: { roomId: string }) {
               style={{ display: "none" }}
             />
             <div className="text-center">
-              <p className="font-medium text-sm truncate w-full">
-                {user.userName}
-              </p>
+              <p className="font-medium text-sm truncate w-full">{user.name}</p>
             </div>
             <div className="w-full">
               <AudioVisualizer
@@ -759,7 +825,7 @@ export default function RoomUI({ roomId }: { roomId: string }) {
                 colors={["#3b82f6", "#8b5cf6", "#ef4444", "#f59e0b", "#10b981"]}
                 height={30}
               />
-            </div>{" "}
+            </div>
           </div>
         </CardContent>
       </Card>

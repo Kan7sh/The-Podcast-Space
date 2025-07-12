@@ -1,7 +1,12 @@
 "use server";
 
 import { db } from "@/db/db";
-import { UserTable } from "@/db/schema";
+import {
+  RecordingsTable,
+  RoomTable,
+  UserRecordingsTable,
+  UserTable,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function getUserByEmail(email: string) {
@@ -19,4 +24,24 @@ export async function updateUser(
     .update(UserTable)
     .set(user)
     .where(eq(UserTable.id, Number(id)));
+}
+
+export async function getUserRecordings(userId: number) {
+  const result = await db
+    .select({
+      recordingUrl: RecordingsTable.recordingUrl,
+      roomName: RoomTable.name,
+      duration: RecordingsTable.recordingLength,
+      createdAt: RecordingsTable.recordingCreatedAt,
+      recordingId: RecordingsTable.id,
+    })
+    .from(UserRecordingsTable)
+    .where(eq(UserRecordingsTable.userId, userId))
+    .innerJoin(
+      RecordingsTable,
+      eq(UserRecordingsTable.recordingId, RecordingsTable.id)
+    )
+    .innerJoin(RoomTable, eq(UserRecordingsTable.roomId, RoomTable.id));
+
+  return result;
 }

@@ -1,8 +1,6 @@
 import RoomUI from "@/feature/room/components/RoomUI";
-
-interface LocationState {
-  isCreating?: boolean;
-}
+import { findActiveRoom } from "@/feature/room/db/room";
+import { notFound } from "next/navigation";
 
 const iceServers = [
   { urls: "stun:stun.l.google.com:19302" },
@@ -28,9 +26,14 @@ export default async function RoomPage({
   params: Promise<{ roomId: string }>;
 }) {
   const { roomId } = await params;
+  const room = await findActiveRoom(roomId);
+  if (room == null) {
+    return notFound();
+  }
+
   return (
     <div>
-      <RoomUI roomId={roomId} />
+      <RoomUI roomId={roomId} roomNumberId={room.id} />
     </div>
   );
 }
