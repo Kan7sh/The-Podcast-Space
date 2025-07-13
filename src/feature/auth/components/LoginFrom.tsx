@@ -1,15 +1,9 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LoadingSwap } from "@/components/LoadingSwap";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -18,9 +12,9 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FcGoogle } from "react-icons/fc";
@@ -29,31 +23,43 @@ import { toast } from "sonner";
 export function LoginFrom() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [isGooleLoginLoading, setIsGooleLoginLoading] = useState(false);
+  const session = useSession();
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
     },
   });
+
+  if (session.status === "loading") {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center self-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
   const onSubmit = async (data: any) => {
     setIsLoading(true);
     const res = await signIn("credentials", {
       email: data.email,
       password: data.password,
-      redirect: true,
+      redirect: false,
     });
     setIsLoading(false);
     console.log(res);
     if (res?.ok) {
-      router.push("/");
+      redirect("/");
     } else {
       toast.error("Invalid email or password. Please try again.");
     }
   };
 
   const signinWithGoogle = async () => {
-    const res = await signIn("google", { redirect: true });
+    setIsGooleLoginLoading(true);
+    const res = await signIn("google", { redirect: false });
+    setIsGooleLoginLoading(false);
     if (res?.ok) {
       router.push("/");
     }
@@ -110,9 +116,12 @@ export function LoginFrom() {
             <Button
               onClick={signinWithGoogle}
               className="w-full cursor-pointer p-5"
+              disabled={isGooleLoginLoading}
             >
               <FcGoogle className="w-8 h-8" />
-              Login with Google
+              <LoadingSwap isLoading={isGooleLoginLoading}>
+                Login with Google
+              </LoadingSwap>
             </Button>
             <Button
               asChild

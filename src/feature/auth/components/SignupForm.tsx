@@ -107,77 +107,79 @@ export function SignupForm() {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      <div className="text-xl font-semibold">
-        <Card className="w-full min-w-md">
-          <CardHeader>
-            <CardTitle>Sign Up</CardTitle>
-            <CardDescription>
-              Enter the below details to create an account
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSignup)}>
-              <CardContent>
-                <div className="flex flex-col gap-6">
-                  <FormField
-                    name="name"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name</FormLabel>
-                        <FormDescription>Enter your full name.</FormDescription>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="email"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormDescription>
-                          Enter a valid email address.
-                        </FormDescription>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="password"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormDescription>
-                          Enter a strong password.
-                        </FormDescription>
-                        <FormControl>
-                          <Input {...field} type="password" />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-              <br />
-              <CardFooter className="flex-col gap-2">
-                <Button type="submit" className="w-full " disabled={isLoading}>
-                  <LoadingSwap isLoading={isLoading}>Signup</LoadingSwap>
-                </Button>
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="/login">Login</Link>
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
-        </Card>
+    <Card className="w-170 h-170 border-none bg-[linear-gradient(to_bottom,_#2a0357,_#171717,_#171717,_#171717)] flex flex-col justify-center p-10 rounded-4xl">
+      <div className="flex flex-col gap-3 justify-center items-center">
+        {/* <div className="text-3xl font-bold w-50 border-amber-700 border-2 p-3 rounded-xl bg-black text-white">
+          Sign up
+        </div> */}
+        <div className="text-4xl font-bold">Sign Up</div>
+        <div className="text-gray-400">
+          Enter the below details to create an account
+        </div>
       </div>
-    </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSignup)}>
+          <CardContent>
+            <div className="flex flex-col gap-6">
+              <FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormDescription>Enter your full name.</FormDescription>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="email"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormDescription>
+                      Enter a valid email address.
+                    </FormDescription>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="password"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormDescription>Enter a strong password.</FormDescription>
+                    <FormControl>
+                      <Input {...field} type="password" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+          <br />
+          <CardFooter className="flex-col gap-2">
+            <Button
+              type="submit"
+              className="w-full bg-amber-600 text-white p-5 "
+              disabled={isLoading}
+            >
+              <LoadingSwap isLoading={isLoading}>Signup</LoadingSwap>
+            </Button>
+            <Button asChild className="w-full p-5">
+              <Link href="/login">Login</Link>
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 }

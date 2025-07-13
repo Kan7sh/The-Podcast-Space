@@ -46,12 +46,21 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function HomePageButtons() {
   const { setIsRoomCreating, setNumberOfParticipants, setRoomName } = useRoom();
   const router = useRouter();
   const session = useSession();
   const [isLoading, setIsLoading] = useState(false);
+
+  if (session.status === "loading") {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center self-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
   const roomParticipantsNumber = [
     { label: "1", value: "1" },
     { label: "2", value: "2" },
@@ -86,7 +95,7 @@ export default function HomePageButtons() {
   const handleCreateRoom = async (data: any) => {
     setIsLoading(true);
     let roomId = null;
-    if (session.data != null) {
+    if (session.data?.user?.email) {
       roomId = await createRoom({
         roomName: data.roomName,
         numberOfParticipants: Number(data.numberOfParticipants),
@@ -100,6 +109,8 @@ export default function HomePageButtons() {
       router.push(`/room/${roomId}`);
     } else {
       toast("There was some error creating the room");
+      setIsLoading(false);
+      return;
     }
   };
 
@@ -109,6 +120,12 @@ export default function HomePageButtons() {
 
   const joinRoom = async (data: any) => {
     setIsLoading(true);
+
+    if (!session.data?.user?.id) {
+      toast.error("User not authenticated");
+      setIsLoading(false);
+      return;
+    }
 
     const room = await findActiveRoom(data.roomId);
     if (
@@ -121,7 +138,7 @@ export default function HomePageButtons() {
     }
 
     const createUserRecording = await createJoinUserRecordings(
-      Number(session.data?.user.id),
+      Number(session.data.user.id),
       room?.id ?? 0
     );
     setIsLoading(false);
