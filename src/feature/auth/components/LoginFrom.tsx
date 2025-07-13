@@ -60,74 +60,70 @@ export function LoginFrom() {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      <div className="text-xl font-semibold">
-        <Card className="w-full min-w-md">
-          <CardHeader>
-            <CardTitle>Login to your account</CardTitle>
-            <CardDescription>
-              Enter your email below to login to your account
-            </CardDescription>
-          </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <CardContent>
-                <FormField
-                  name="email"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <br />
-                <FormField
-                  name="password"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-
-                      <FormControl>
-                        <Input {...field} type="password" />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <br />
-              </CardContent>
-              <CardFooter className="flex-col gap-2">
-                <Button
-                  type="submit"
-                  className="w-full cursor-pointer"
-                  disabled={isLoading}
-                >
-                  <LoadingSwap isLoading={isLoading}>Login</LoadingSwap>
-                </Button>
-                <Button
-                  onClick={signinWithGoogle}
-                  className="w-full cursor-pointer"
-                >
-                  <FcGoogle className="w-5 h-5" />
-                  Login with Google
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  className="w-full cursor-pointer"
-                >
-                  <Link href={"/signup"}>Signup</Link>
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
-        </Card>
+    <Card className="w-full h-full rounded-4xl flex flex-col justify-center border-none shadow-none bg-transparent ">
+      <div className="flex flex-col gap-3 justify-center items-center">
+        <div className="text-2xl font-bold">Login to your account</div>
+        <div className="text-gray-400">
+          Enter your email below to login to your account
+        </div>
       </div>
-    </div>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <CardContent>
+            <FormField
+              name="email"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <br />
+            <FormField
+              name="password"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+
+                  <FormControl>
+                    <Input {...field} type="password" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <br />
+          </CardContent>
+          <CardFooter className="flex-col gap-2">
+            <Button
+              type="submit"
+              className="w-full cursor-pointer p-5 bg-amber-600 text-white"
+              disabled={isLoading}
+            >
+              <LoadingSwap isLoading={isLoading}>Login</LoadingSwap>
+            </Button>
+            <Button
+              onClick={signinWithGoogle}
+              className="w-full cursor-pointer p-5"
+            >
+              <FcGoogle className="w-8 h-8" />
+              Login with Google
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="w-full cursor-pointer p-"
+            >
+              <Link href={"/signup"}>Signup</Link>
+            </Button>
+          </CardFooter>
+        </form>
+      </Form>
+    </Card>
   );
 }

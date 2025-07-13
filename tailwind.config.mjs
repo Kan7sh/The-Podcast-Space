@@ -5,11 +5,12 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: "class", 
+  darkMode: "class",
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-poppins)"], 
+        sans: ["var(--font-poppins)"],
+        schibsted:["schibsted","sans-serif"]
       },
     },
   },

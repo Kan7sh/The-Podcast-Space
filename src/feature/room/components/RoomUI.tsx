@@ -13,21 +13,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRoom } from "@/store/context/RoomContext";
-import {
-  Camera,
-  CameraOff,
-  Check,
-  Copy,
-  Mic,
-  MicOff,
-  Send,
-} from "lucide-react";
+import { Check, Copy, Mic, MicOff, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { findActiveRoom } from "../db/room";
 
 const iceServers = [
   { urls: "stun:stun.l.google.com:19302" },
@@ -522,14 +512,6 @@ export default function RoomUI({
       );
       localStreamRef.current = stream;
       setIsVoiceEnabled(true);
-      // if (localVideoRef.current && stream.getVideoTracks().length > 0) {
-      //   console.log("Setting Local video stream");
-      //   localVideoRef.current.srcObject = stream;
-      //   localVideoRef.current
-      //     .play()
-      //     .catch((e) => console.error("Error playing local video:", e));
-      // }
-
       if (stream.getAudioTracks().length > 0) {
         const audioTrack = stream.getAudioTracks()[0];
         const audioStream = new MediaStream([audioTrack]);
@@ -765,7 +747,6 @@ export default function RoomUI({
         if (stream && stream !== remoteStream) {
           setRemoteStream(stream);
 
-          // Set srcObject directly to avoid recreation
           if (audioRef.current && audioRef.current.srcObject !== stream) {
             audioRef.current.srcObject = stream;
             audioRef.current
@@ -777,7 +758,6 @@ export default function RoomUI({
 
       checkForStream();
 
-      // Use a longer interval to reduce overhead
       const interval = setInterval(checkForStream, 2000);
 
       return () => clearInterval(interval);
@@ -807,7 +787,7 @@ export default function RoomUI({
             <div className="w-full">
               <AudioVisualizer
                 audioStream={remoteStream}
-                colors={["#3b82f6", "#8b5cf6", "#ef4444", "#f59e0b", "#10b981"]}
+                colors={["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"]}
                 height={30}
               />
             </div>
@@ -891,14 +871,12 @@ export default function RoomUI({
         <div className="flex flex-row gap-3">
           <Card className="flex-2 min-h-[500px]">
             <CardContent className="space-y-6">
-              {/* Users Grid */}
               <div>
                 <h3 className="text-lg font-semibold mb-3">
                   Participants ({users.length})
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
                   {users.map((user) => (
-                    // <div></div
                     <UserCard key={user.userName} user={user} />
                   ))}
                 </div>

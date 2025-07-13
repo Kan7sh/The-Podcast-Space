@@ -1,0 +1,41 @@
+/* components/TextCycle.module.css */
+.container {
+  margin-top: 30px;
+  position: relative;
+  height: 60px;
+  overflow: hidden;
+}
+
+.textItem {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  opacity: 0;
+  color: #6206f5;
+  animation: textCycle 9s infinite; /* 3 items × 3s each */
+}
+
+@keyframes textCycle {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}

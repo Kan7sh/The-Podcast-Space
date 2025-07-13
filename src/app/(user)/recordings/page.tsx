@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { getUserRecordings } from "@/feature/user/db/user";
 import { AuthOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth/next";
-import DownloadButton from "./downloadButton";
+import DownloadButton from "@/feature/user/components/DownloadButton";
 
 export default async function PastRecordingsPage() {
   const session = await getServerSession(AuthOptions);
