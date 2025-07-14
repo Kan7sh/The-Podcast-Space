@@ -1,17 +1,20 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 
 interface AudioVisualizerProps {
   audioStream: MediaStream | null | undefined;
   colors?: string[];
   height?: number;
+  classname?: string;
 }
 
 export default function AudioVisualizer({
   audioStream,
   colors = ["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"],
   height = 40,
+  classname="",
 }: AudioVisualizerProps) {
   const [frequencies, setFrequencies] = useState<number[]>([0, 0, 0, 0, 0]);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -71,7 +74,7 @@ export default function AudioVisualizer({
 
   return (
     <div
-      className="flex items-end gap-1 w-full"
+      className={cn("flex items-end gap-1 w-full", classname)}
       style={{ height: `${height}px` }}
     >
       {frequencies.map((freq, index) => (

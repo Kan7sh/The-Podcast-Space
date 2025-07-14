@@ -33,7 +33,7 @@ import {
 
 import { LoadingSwap } from "@/components/LoadingSwap";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { ChevronsUpDown, Check, EthernetPort } from "lucide-react";
 import Link from "next/link";
 import { createJoinUserRecordings } from "@/feature/room/actions/createJoinUserRecordings";
 import { createRoom } from "@/feature/room/actions/createRoom";
@@ -47,6 +47,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Card } from "@/components/ui/card";
 
 export default function HomePageButtons() {
   const { setIsRoomCreating, setNumberOfParticipants, setRoomName } = useRoom();
@@ -114,10 +115,6 @@ export default function HomePageButtons() {
     }
   };
 
-  async function logout() {
-    await signOut();
-  }
-
   const joinRoom = async (data: any) => {
     setIsLoading(true);
 
@@ -162,13 +159,16 @@ export default function HomePageButtons() {
   };
   return (
     <div className="flex flex-col gap-5">
-      <div>{session.data?.user.email}</div>
-
-      <Button onClick={logout}>Logout</Button>
-      <Button asChild>
-        <Link href={"/editprofile"}>Edit Profile</Link>
-      </Button>
-      <Button>About</Button>
+      <Card className="bg-[linear-gradient(to_bottom,_#171717,_#171717,_#171717,_#171717,_#7c4404)] border-none p-5">
+        <div className="flex flex-row gap-3">
+          <div className="p-7 bg-amber-300 rounded-xl">
+            <EthernetPort className="w-12 h-12" />
+          </div>
+          <div className="flex flex-col">
+            <div className="text-2xl">CREATE ROOM</div>
+          </div>
+        </div>
+      </Card>
       <Dialog>
         <DialogTrigger asChild>
           <Button>Create a room</Button>

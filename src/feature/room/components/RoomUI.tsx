@@ -3,7 +3,7 @@
 import AudioVisualizer from "@/feature/room/components/AudioVisualizer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -47,6 +47,7 @@ interface User {
 interface Message {
   type: "system" | "user";
   userName?: string;
+  name?: string;
   message: string;
   timestamp?: string;
 }
@@ -77,6 +78,7 @@ interface WebSocketMessage {
   candidate?: RTCIceCandidateInit;
   targetPeer?: string;
   audioData?: string;
+  name?: string;
   startTime?: number;
   recordings?: Array<{
     userName: string;
@@ -303,7 +305,7 @@ export default function RoomUI({
               userName: data.userName,
               message: data.message || "",
               imageUrl: session.data?.user.image,
-              name: session.data?.user.name,
+              name: data.name,
 
               id: session.data?.user.id,
               roomNumberId: roomNumberId,
@@ -764,32 +766,36 @@ export default function RoomUI({
     }, [user.userName]); // Remove 'users' dependency
 
     return (
-      <Card className={`relative`}>
-        <CardContent className="p-4">
-          <div className="flex flex-col items-center space-y-3">
+      <Card className={`relative rounded-3xl bg-neutral-900`}>
+        <CardContent className="p-1">
+          <div className="flex flex-row items-center space-y-1 gap-5 justify-center">
             <div className="relative">
-              <Avatar className="w-16 h-16">
+              <Avatar className="w-20 h-20 border-2 border-white">
                 <AvatarImage src={user.imageUrl} />
                 <AvatarFallback className="text-lg">
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
+              <audio
+                ref={audioRef}
+                autoPlay
+                playsInline
+                style={{ display: "none" }}
+              />
             </div>
-            <audio
-              ref={audioRef}
-              autoPlay
-              playsInline
-              style={{ display: "none" }}
-            />
-            <div className="text-center">
-              <p className="font-medium text-sm truncate w-full">{user.name}</p>
-            </div>
-            <div className="w-full">
+            <div className=" flex flex-col gap-2 justify-center items-center align-middle">
               <AudioVisualizer
+                classname={
+                  user.userName == session.data?.user.email ? "hidden" : ""
+                }
                 audioStream={remoteStream}
-                colors={["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"]}
+                colors={["#dc7702", "#dc7702", "#dc7702", "#dc7702", "#dc7702"]}
                 height={30}
               />
+              <div className="text-center">
+                <p className=" text-xl truncate w-full">{user.name}</p>
+              </div>
+              <div className="w-full"></div>
             </div>
           </div>
         </CardContent>
@@ -798,14 +804,14 @@ export default function RoomUI({
   };
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-screen bg-black">
       <div className="flex flex-col p-3 gap-3">
-        <Card>
+        <Card className="bg-[linear-gradient(to_bottom,_#1c1c1c,_#1c1c1c,_#2a0357)] border-none">
           <div className="px-5">
             <div className="flex flex-row justify-between items-center">
               <div className="flex flex-row gap-4 items-center">
                 <div className="text-2xl">{roomName}</div>
-                <Card className="p-2 flex flex-row items-center gap-2">
+                <Card className="py-2 px-5 flex flex-row items-center gap-2">
                   <div>RoomId: {roomId}</div>
                   <TooltipProvider>
                     <Tooltip>
@@ -839,14 +845,14 @@ export default function RoomUI({
                         variant="outline"
                         size="sm"
                         onClick={toggleMute}
-                        className={`h-10 w-10 p-0 ${
-                          isMuted ? "bg-red-100      border-red-300" : ""
+                        className={`h-13 w-13 p-0 border-white border-2 ${
+                          isMuted ? "bg-red-100  border-red-300" : ""
                         }`}
                       >
                         {isMuted ? (
-                          <MicOff className="h-4 w-4 text-red-600" />
+                          <MicOff className="h-5 w-5 text-red-600" />
                         ) : (
-                          <Mic className="h-4 w-4" />
+                          <Mic className="h-5 w-5" />
                         )}
                       </Button>
                     </TooltipTrigger>
@@ -860,7 +866,7 @@ export default function RoomUI({
 
                 <Button
                   onClick={handleLeaveRoom}
-                  className="bg-red-700 text-white"
+                  className="bg-red-700 text-white py-6"
                 >
                   Leave Room
                 </Button>
@@ -869,13 +875,13 @@ export default function RoomUI({
           </div>
         </Card>
         <div className="flex flex-row gap-3">
-          <Card className="flex-2 min-h-[500px]">
+          <Card className="flex-2 min-h-[550px] bg-zinc-900 border-none">
             <CardContent className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-3">
                   Participants ({users.length})
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-4">
                   {users.map((user) => (
                     <UserCard key={user.userName} user={user} />
                   ))}
@@ -884,9 +890,8 @@ export default function RoomUI({
             </CardContent>
           </Card>
           <div className="flex-1">
-            <Card className="h-[500px] flex flex-col">
+            <Card className="h-[550px] flex flex-col bg-zinc-900 border-none">
               <CardContent className="p-4 flex flex-col h-full">
-                {/* Messages */}
                 <ScrollArea className="flex-1 mb-4 p-2">
                   <div className="space-y-2">
                     {messages.map((msg, index) => (
@@ -904,7 +909,7 @@ export default function RoomUI({
                                   : "text-zinc-500"
                               }`}
                             >
-                              {msg.userName}:
+                              {msg.name}:
                             </span>
                             <span className="ml-2">{msg.message}</span>
                           </div>
