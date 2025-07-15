@@ -22,5 +22,5 @@ export default function DownloadButton({
     }
   };
 
-  return <Button onClick={handleDownload}>Download</Button>;
+  return <Button onClick={handleDownload} className="bg-amber-600 text-white py-5 rounded-xl">Download Recording</Button>;
 }

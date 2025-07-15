@@ -7,7 +7,7 @@ import {
   UserRecordingsTable,
   UserTable,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc, and, isNotNull } from "drizzle-orm";
 
 export async function getUserByEmail(email: string) {
   return await db.query.UserTable.findFirst({
@@ -36,12 +36,19 @@ export async function getUserRecordings(userId: number) {
       recordingId: RecordingsTable.id,
     })
     .from(UserRecordingsTable)
-    .where(eq(UserRecordingsTable.userId, userId))
+    .where(
+      and(
+        eq(UserRecordingsTable.userId, userId),
+        isNotNull(RecordingsTable.recordingUrl)
+      )
+    )
+
     .innerJoin(
       RecordingsTable,
       eq(UserRecordingsTable.recordingId, RecordingsTable.id)
     )
-    .innerJoin(RoomTable, eq(UserRecordingsTable.roomId, RoomTable.id));
+    .innerJoin(RoomTable, eq(UserRecordingsTable.roomId, RoomTable.id))
+    .orderBy(desc(RecordingsTable.recordingCreatedAt));
 
   return result;
 }

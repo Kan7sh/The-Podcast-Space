@@ -4,6 +4,7 @@ import { getUserRecordings } from "@/feature/user/db/user";
 import { AuthOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth/next";
 import DownloadButton from "@/feature/user/components/DownloadButton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default async function PastRecordingsPage() {
   const session = await getServerSession(AuthOptions);
@@ -26,7 +27,7 @@ export default async function PastRecordingsPage() {
     const month = pad(date.getMonth() + 1);
     const year = date.getFullYear();
 
-    return `${hours}:${minutes} ${day}:${month}:${year}`;
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
   }
 
   function formatSeconds(input: number): string {
@@ -40,30 +41,40 @@ export default async function PastRecordingsPage() {
   }
 
   return (
-    <div className="h-full w-full flex flex-col">
-      <div className="text-4xl p-6">Past recordings</div>
-      {recordings.map((recording) => (
-        <div className="m-3" key={recording.recordingId}>
-          <Card className="p-5">
-            <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-col ">
-                <div className="text-xl font-semibold text-white">
-                  {recording.roomName}
+    <div
+      className="h-screen w-screen flex flex-col p-10 bg-[#1c1c1c] justify-center items-center"
+      style={{
+        background:
+          "radial-gradient(circle at 50% -90%, #2a0357,#2a0357, #000000, #000000)",
+      }}
+    >
+      <div className="text-3xl font-bold border-amber-700 border-2 py-4  px-14 mb-5 rounded-xl bg-black text-white font-schibsted">
+        PAST RECORDINGS
+      </div>
+      <ScrollArea className="h-[650px] p-6 bg-black rounded-3xl overflow-y-hidden ">
+        {recordings.map((recording) => (
+          <div className="m-3 w-190 overflow-y-hidden" key={recording.recordingId}>
+            <Card className="p-5 bg-[linear-gradient(to_bottom,_#1f1f1f,_#1f1f1f,_#1f1f1f,_#262626)] border-none rounded-2xl">
+              <div className="flex flex-row justify-between items-center">
+                <div className="flex flex-col ">
+                  <div className="text-xl font-semibold text-white">
+                    {recording.roomName}
+                  </div>
+                  <div className="text-gray-500">
+                    {formatSeconds(Number(recording.duration))}
+                  </div>
+                  <div className="text-gray-300">
+                    {formatDateTime(recording.createdAt?.toISOString() ?? "")}
+                  </div>
                 </div>
-                <div className="text-gray-600">
-                  {formatSeconds(Number(recording.duration))}
-                </div>
-                <div className="text-gray-600">
-                  {formatDateTime(recording.createdAt?.toISOString() ?? "")}
+                <div>
+                  <DownloadButton url={recording.recordingUrl ?? ""} />
                 </div>
               </div>
-              <div>
-                <DownloadButton url={recording.recordingUrl ?? ""} />
-              </div>
-            </div>
-          </Card>
-        </div>
-      ))}
+            </Card>
+          </div>
+        ))}
+      </ScrollArea>
     </div>
   );
 }

@@ -20,6 +20,7 @@ import { Edit3 } from "lucide-react";
 import { updateUser } from "@/feature/user/db/user";
 import { redirect } from "next/dist/server/api-utils";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function EditProfile() {
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -86,8 +87,7 @@ export default function EditProfile() {
       image: url,
     });
 
-    console.log(newSession);
-
+    toast.info("Profile Updated");
     router.push("/");
 
     setUploading(false);
@@ -103,8 +103,8 @@ export default function EditProfile() {
 
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center gap-4">
-      <Card className="p-6 flex flex-col items-center gap-4">
-        {/* Avatar with edit icon */}
+      <Card className="p-6 flex flex-col items-center justify-center gap-10 bg-[linear-gradient(to_bottom,_#171717,_#171717,_#171717,_#1f0142)] border-none rounded-3xl py-12 px-8 w-160 h-150">
+        <div className="text-2xl font-bold text-white">EDIT PROFILE</div>
         <div className="relative">
           <Avatar className="w-32 h-32">
             <AvatarImage
@@ -125,9 +125,9 @@ export default function EditProfile() {
           {/* Edit icon positioned above and to the left of avatar */}
           <label
             htmlFor="file-input"
-            className="absolute -top-2 -left-2 bg-primary text-primary-foreground rounded-full p-1.5 cursor-pointer hover:bg-primary/90 transition-colors shadow-lg"
+            className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full p-1.5 cursor-pointer hover:bg-primary/90 transition-colors shadow-lg"
           >
-            <Edit3 size={16} />
+            <Edit3 size={18} className="text-amber-600" />
           </label>
 
           {/* Hidden file input */}
@@ -139,9 +139,9 @@ export default function EditProfile() {
             className="hidden"
           />
         </div>
-
+        <div className="text-neutral-500">{session?.user.email}</div>
         <Form {...form}>
-          <form className="space-y-4 w-full max-w-sm">
+          <form className="space-y-4 w-full max-w-130">
             <FormField
               name="name"
               control={form.control}
@@ -156,15 +156,14 @@ export default function EditProfile() {
             />
           </form>
         </Form>
+        <Button
+          onClick={updateUserData}
+          disabled={uploading || !hasChanges}
+          className="min-w-130 bg-amber-600 text-white"
+        >
+          {uploading ? "Saving..." : "Save Changes"}
+        </Button>
       </Card>
-
-      <Button
-        onClick={updateUserData}
-        disabled={uploading || !hasChanges}
-        className="min-w-32"
-      >
-        {uploading ? "Saving..." : "Save Changes"}
-      </Button>
     </div>
   );
 }

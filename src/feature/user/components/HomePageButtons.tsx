@@ -33,7 +33,13 @@ import {
 
 import { LoadingSwap } from "@/components/LoadingSwap";
 import { cn } from "@/lib/utils";
-import { ChevronsUpDown, Check, EthernetPort } from "lucide-react";
+import {
+  ChevronsUpDown,
+  Check,
+  List,
+  LogIn,
+  AlignCenterHorizontal,
+} from "lucide-react";
 import Link from "next/link";
 import { createJoinUserRecordings } from "@/feature/room/actions/createJoinUserRecordings";
 import { createRoom } from "@/feature/room/actions/createRoom";
@@ -48,6 +54,7 @@ import { toast } from "sonner";
 import z from "zod";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Card } from "@/components/ui/card";
+import { FcEnteringHeavenAlive, FcMakeDecision } from "react-icons/fc";
 
 export default function HomePageButtons() {
   const { setIsRoomCreating, setNumberOfParticipants, setRoomName } = useRoom();
@@ -159,23 +166,26 @@ export default function HomePageButtons() {
   };
   return (
     <div className="flex flex-col gap-5">
-      <Card className="bg-[linear-gradient(to_bottom,_#171717,_#171717,_#171717,_#171717,_#7c4404)] border-none p-5">
-        <div className="flex flex-row gap-3">
-          <div className="p-7 bg-amber-300 rounded-xl">
-            <EthernetPort className="w-12 h-12" />
-          </div>
-          <div className="flex flex-col">
-            <div className="text-2xl">CREATE ROOM</div>
-          </div>
-        </div>
-      </Card>
       <Dialog>
         <DialogTrigger asChild>
-          <Button>Create a room</Button>
+          <Card className="bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none  p-6 rounded-3xl transition-transform duration-300 hover:scale-105">
+            <div className="flex flex-row gap-3 items-center ">
+              <div className="p-7 bg-black rounded-xl">
+                <AlignCenterHorizontal className="w-8 h-8 text-amber-600" />
+              </div>
+              <div className="flex flex-col ">
+                <div className="text-xl font-bold">CREATE ROOM</div>
+                <div className="w-40 text-xs">
+                  Create a room, share the ID, and chat with up to 8 people in
+                  real-time
+                </div>
+              </div>
+            </div>
+          </Card>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[480px]  border-none px-10 py-10 bg-[linear-gradient(to_bottom,_#1c1c1c,_#1c1c1c,_#262626,_#262626)] rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Create a room</DialogTitle>
+            <DialogTitle className="text-2xl">Create a room</DialogTitle>
             <DialogDescription>
               Enter the room name and number of Participants
             </DialogDescription>
@@ -213,7 +223,7 @@ export default function HomePageButtons() {
                               variant="outline"
                               role="combobox"
                               className={cn(
-                                "w-[200px] justify-between",
+                                "w-full justify-between",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
@@ -265,7 +275,11 @@ export default function HomePageButtons() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-amber-600 text-white w-full"
+                >
                   <LoadingSwap isLoading={isLoading}> Create</LoadingSwap>
                 </Button>
               </form>
@@ -276,11 +290,24 @@ export default function HomePageButtons() {
 
       <Dialog>
         <DialogTrigger asChild>
-          <Button>Join a Room</Button>
+          <Card className="bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none border-1 p-6 rounded-3xl transition-transform duration-300 hover:scale-105">
+            <div className="flex flex-row gap-3 items-center">
+              <div className="p-7 bg-black rounded-xl">
+                <LogIn className="w-8 h-8 text-amber-600" />
+              </div>
+              <div className="flex flex-col ">
+                <div className="text-xl font-bold">JOIN ROOM</div>
+                <div className="w-40 text-xs">
+                  Join a room using the shared ID and jump straight into the
+                  conversation
+                </div>
+              </div>
+            </div>
+          </Card>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[480px]  border-none px-10 py-10 bg-[linear-gradient(to_bottom,_#1c1c1c,_#1c1c1c,_#262626,_#262626)] rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Join room</DialogTitle>
+            <DialogTitle className="text-2xl">Join room</DialogTitle>
 
             <DialogDescription>Enter the room Id to join</DialogDescription>
           </DialogHeader>
@@ -305,7 +332,11 @@ export default function HomePageButtons() {
                   )}
                 />
 
-                <Button type="submit" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-amber-600 text-white w-full"
+                >
                   <LoadingSwap isLoading={isLoading}>Join</LoadingSwap>
                 </Button>
               </form>
@@ -313,7 +344,23 @@ export default function HomePageButtons() {
           </div>
         </DialogContent>
       </Dialog>
-      <Button onClick={moveToPastRecordings}>Past recordings</Button>
+      <Card
+        onClick={moveToPastRecordings}
+        className="bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none border-1 p-6 rounded-3xl transition-transform duration-300 hover:scale-105"
+      >
+        <div className="flex flex-row gap-3 items-center">
+          <div className="p-7 bg-black rounded-xl">
+            <List className="w-8 h-8 text-amber-600" />
+          </div>
+          <div className="flex flex-col ">
+            <div className="text-xl font-bold">PAST RECORDING</div>
+            <div className="w-40 text-xs">
+              Access and listen to your past recordings anytime, all in one
+              placex
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }

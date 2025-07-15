@@ -15,6 +15,16 @@ export default function GlassNavBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const session = useSession();
+  const scrollToAbout = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const aboutSection = document.getElementById("about");
+    if (aboutSection) {
+      aboutSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   const getInitials = (name: string) => {
     return name
@@ -41,11 +51,13 @@ export default function GlassNavBar() {
               height={80}
             />
           </Link>
-          <div className="font-mono text-xl">THE PODCAST SPACE</div>
+          {/* <div className="text-xl">THE PODCAST SPACE</div> */}
         </div>
         <div className="hidden md:block">
           <div className="flex flex-row justify-center items-center gap-8">
-            <Link href={"/"}>About</Link>
+            <a href="#about" onClick={scrollToAbout}>
+              About
+            </a>
             <Toggle
               variant="outline"
               aria-label="Toggle italic"
@@ -62,17 +74,19 @@ export default function GlassNavBar() {
                   </AvatarFallback>
                 </Avatar>
               </PopoverTrigger>
-              <PopoverContent className="bg-gray-900 rounded-2xl">
+              <PopoverContent className="bg-[linear-gradient(to_bottom,_#141414,_#141414,_#141414,_#141414)] rounded-3xl  border-none">
                 <div className="flex flex-col items-center">
                   <h4 className="leading-none font-medium">
-                    👋 Hello! {session.data?.user.name}
+                      Hello! {session.data?.user.name}
                   </h4>
                   <p className="text-muted-foreground text-sm mt-2">
                     {session.data?.user.email}
                   </p>
                 </div>
                 <div className="flex flex-col mt-4 gap-2">
-                  <Button variant="ghost" asChild><Link href={"/editprofile"}>Edit Profile</Link></Button>
+                  <Button variant="ghost" asChild>
+                    <Link href={"/editprofile"}>Edit Profile</Link>
+                  </Button>
                   <Button
                     onClick={logout}
                     variant="ghost"
@@ -92,14 +106,14 @@ export default function GlassNavBar() {
           </Button>
         </div>
       </div>
-      {isOpen && (
+      {/* {isOpen && (
         <div className="flex flex-col items-center justify-center gap-3 px-5 py-3 md:hidden">
           <Link href={"/editprofile"}> Edit Profile</Link>
           <div onClick={logout} className="text-red-700">
             Logout
           </div>
         </div>
-      )}
+      )} */}
     </nav>
   );
 }
