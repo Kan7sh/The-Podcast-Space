@@ -4,16 +4,17 @@ import Image from "next/image";
 import LogoImage from "@/assets/logo.png";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Menu, MoonStar } from "lucide-react";
+import { Menu, MoonStar, Sun } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { signOut, useSession } from "next-auth/react";
 import { Separator } from "./ui/separator";
 import { Toggle } from "./ui/toggle";
+import { useTheme } from "@/store/context/ThemeContext";
 
 export default function GlassNavBar() {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { theme, toggleTheme } = useTheme();
   const session = useSession();
   const scrollToAbout = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -58,13 +59,19 @@ export default function GlassNavBar() {
             <a href="#about" onClick={scrollToAbout}>
               About
             </a>
-            <Toggle
+            {/* <Toggle
+              pressed={theme === "dark"}
+              onPressedChange={toggleTheme}
               variant="outline"
-              aria-label="Toggle italic"
-              className="size-12"
+              aria-label="Toggle dark mode"
+              size="sm"
             >
-              <MoonStar />
-            </Toggle>
+              {theme === "dark" ? (
+                <Sun className="size-4" />
+              ) : (
+                <MoonStar className="size-4" />
+              )}
+            </Toggle> */}
             <Popover>
               <PopoverTrigger asChild>
                 <Avatar className="w-15 h-15 border-2 border-white">
@@ -77,7 +84,7 @@ export default function GlassNavBar() {
               <PopoverContent className="bg-[linear-gradient(to_bottom,_#141414,_#141414,_#141414,_#141414)] rounded-3xl  border-none">
                 <div className="flex flex-col items-center">
                   <h4 className="leading-none font-medium">
-                      Hello! {session.data?.user.name}
+                    Hello! {session.data?.user.name}
                   </h4>
                   <p className="text-muted-foreground text-sm mt-2">
                     {session.data?.user.email}
@@ -106,14 +113,14 @@ export default function GlassNavBar() {
           </Button>
         </div>
       </div>
-      {/* {isOpen && (
+      {isOpen && (
         <div className="flex flex-col items-center justify-center gap-3 px-5 py-3 md:hidden">
           <Link href={"/editprofile"}> Edit Profile</Link>
-          <div onClick={logout} className="text-red-700">
+          <div onClick={logout} className="text-red-700 cursor-pointer">
             Logout
           </div>
         </div>
-      )} */}
+      )}
     </nav>
   );
 }

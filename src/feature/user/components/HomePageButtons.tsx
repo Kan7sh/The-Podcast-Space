@@ -54,7 +54,6 @@ import { toast } from "sonner";
 import z from "zod";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Card } from "@/components/ui/card";
-import { FcEnteringHeavenAlive, FcMakeDecision } from "react-icons/fc";
 
 export default function HomePageButtons() {
   const { setIsRoomCreating, setNumberOfParticipants, setRoomName } = useRoom();
@@ -168,7 +167,7 @@ export default function HomePageButtons() {
     <div className="flex flex-col gap-5">
       <Dialog>
         <DialogTrigger asChild>
-          <Card className="bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none  p-6 rounded-3xl transition-transform duration-300 hover:scale-105">
+          <Card className="bg-[linear-gradient(to_bottom,_#f5f5f5,_#f5f5f5,_#f5f5f5,_#262626)] dark:bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none  p-6 rounded-3xl transition-transform duration-300 hover:scale-105">
             <div className="flex flex-row gap-3 items-center ">
               <div className="p-7 bg-black rounded-xl">
                 <AlignCenterHorizontal className="w-8 h-8 text-amber-600" />
@@ -290,7 +289,7 @@ export default function HomePageButtons() {
 
       <Dialog>
         <DialogTrigger asChild>
-          <Card className="bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none border-1 p-6 rounded-3xl transition-transform duration-300 hover:scale-105">
+          <Card className="bg-[linear-gradient(to_bottom,_#f5f5f5,_#f5f5f5,_#f5f5f5,_#262626)] dark:bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none border-1 p-6 rounded-3xl transition-transform duration-300 hover:scale-105">
             <div className="flex flex-row gap-3 items-center">
               <div className="p-7 bg-black rounded-xl">
                 <LogIn className="w-8 h-8 text-amber-600" />
@@ -346,7 +345,7 @@ export default function HomePageButtons() {
       </Dialog>
       <Card
         onClick={moveToPastRecordings}
-        className="bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none border-1 p-6 rounded-3xl transition-transform duration-300 hover:scale-105"
+        className="bg-[linear-gradient(to_bottom,_#f5f5f5,_#f5f5f5,_#f5f5f5,_#262626)] dark:bg-[linear-gradient(to_bottom,_#424242,_#424242,_#262626,_#262626)] border-none border-1 p-6 rounded-3xl transition-transform duration-300 hover:scale-105"
       >
         <div className="flex flex-row gap-3 items-center">
           <div className="p-7 bg-black rounded-xl">

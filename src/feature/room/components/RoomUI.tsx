@@ -806,13 +806,13 @@ export default function RoomUI({
   return (
     <div className="w-screen h-screen bg-black">
       <div className="flex flex-col p-3 gap-3">
-        <Card className="bg-[linear-gradient(to_bottom,_#1c1c1c,_#1c1c1c,_#2a0357)] border-none">
+        <Card className="bg-[linear-gradient(to_bottom,_#1c1c1c,_#1c1c1c,_#1b3784)] border-none">
           <div className="px-5">
             <div className="flex flex-row justify-between items-center">
-              <div className="flex flex-row gap-4 items-center">
-                <div className="text-2xl">{roomName}</div>
+              <div className="flex flex-row gap-2 lg:gap-4 items-center">
+                <div className="text-md lg:text-2xl truncate">{roomName}</div>
                 <Card className="py-2 px-5 flex flex-row items-center gap-2">
-                  <div>RoomId: {roomId}</div>
+                  <div>Room ID: {roomId}</div>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -837,7 +837,7 @@ export default function RoomUI({
                 </Card>
               </div>
 
-              <div className="flex flex-row gap-3 items-center">
+              <div className="flex flex-row gap-2 lg:gap-3 items-center">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -845,14 +845,14 @@ export default function RoomUI({
                         variant="outline"
                         size="sm"
                         onClick={toggleMute}
-                        className={`h-13 w-13 p-0 border-white border-2 ${
+                        className={`h-9 w-9 lg:h-13 lg:w-13 p-0 border-white border-2 ${
                           isMuted ? "bg-red-100  border-red-300" : ""
                         }`}
                       >
                         {isMuted ? (
-                          <MicOff className="h-5 w-5 text-red-600" />
+                          <MicOff className="w-3 h-3 lg:h-5 lg:w-5 text-red-600" />
                         ) : (
-                          <Mic className="h-5 w-5" />
+                          <Mic className="w-3 h-3 lg:h-5 lg:w-5" />
                         )}
                       </Button>
                     </TooltipTrigger>
@@ -866,7 +866,7 @@ export default function RoomUI({
 
                 <Button
                   onClick={handleLeaveRoom}
-                  className="bg-red-700 text-white py-6"
+                  className="bg-red-700 text-white lg:py-6"
                 >
                   Leave Room
                 </Button>
@@ -874,8 +874,8 @@ export default function RoomUI({
             </div>
           </div>
         </Card>
-        <div className="flex flex-row gap-3">
-          <Card className="flex-2 min-h-[550px] bg-zinc-900 border-none">
+        <div className="flex flex-col lg:flex-row gap-3">
+          <Card className="lg:flex-2 lg:min-h-[550px] bg-zinc-900 border-none">
             <CardContent className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-3">
@@ -890,7 +890,7 @@ export default function RoomUI({
             </CardContent>
           </Card>
           <div className="flex-1">
-            <Card className="h-[550px] flex flex-col bg-zinc-900 border-none">
+            <Card className="lg:h-[550px] flex flex-col bg-zinc-900 border-none">
               <CardContent className="p-4 flex flex-col h-full">
                 <ScrollArea className="flex-1 mb-4 p-2">
                   <div className="space-y-2">

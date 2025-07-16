@@ -9,7 +9,7 @@ import RotatingText from "./_RotatingText";
 export default function LoginPage() {
   return (
     <SignedOut>
-      <div className="min-h-screen flex flex-col-reverse lg:flex-row gap-4 p-4 lg:p-8 lg:mt-10 mb-10 lg:mb-0">
+      <div className="min-h-screen flex flex-col-reverse lg:flex-row gap-4 p-4 lg:p-8 mt-10 mb-10 lg:mb-0">
         <Card className="h-auto lg:h-[37.5rem] rounded-4xl shadow-2xl border-none flex-1 lg:flex-[5] p-4 lg:p-8 bg-gradient-to-b from-neutral-900 via-neutral-900 to-blue-900 flex flex-col lg:flex-row">
           <div className="flex justify-center lg:justify-start mb-6 lg:mb-0">
             <Image
