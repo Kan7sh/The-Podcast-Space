@@ -6,6 +6,8 @@
   overflow: hidden;
 }
 
+
+
 .textItem {
   position: absolute;
   width: 100%;
@@ -15,6 +17,15 @@
   opacity: 0;
   color: #6206f5;
   animation: textCycle 9s infinite; /* 3 items × 3s each */
+}
+
+@media (max-width: 640px) {
+  .container {
+    margin-top: 0px;
+  }
+  .textItem{
+    font-size: 2rem;
+  }
 }
 
 @keyframes textCycle {

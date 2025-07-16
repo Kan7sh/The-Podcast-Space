@@ -70,7 +70,7 @@ export function VerifyOtpCard() {
   }
 
   return (
-    <Card className="w-170 h-170  border-none bg-[linear-gradient(to_bottom,_#2a0357,_#171717,_#171717,_#171717)] flex flex-col justify-center p-11 rounded-4xl">
+    <Card className=" lg:w-170 lg:h-170  border-none bg-[linear-gradient(to_bottom,_#1b3784,_#171717,_#171717,_#171717)] flex flex-col justify-center p-11 rounded-4xl">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="text-center">

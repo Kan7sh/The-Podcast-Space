@@ -107,7 +107,7 @@ export function SignupForm() {
   };
 
   return (
-    <Card className="w-170 h-170 border-none bg-[linear-gradient(to_bottom,_#2a0357,_#171717,_#171717,_#171717)] flex flex-col justify-center p-10 rounded-4xl">
+    <Card className="w-170 h-170 border-none bg-[linear-gradient(to_bottom,_#1b3784,_#171717,_#171717,_#171717)] flex flex-col justify-center p-10 rounded-4xl">
       <div className="flex flex-col gap-3 justify-center items-center">
         {/* <div className="text-3xl font-bold w-50 border-amber-700 border-2 p-3 rounded-xl bg-black text-white">
           Sign up

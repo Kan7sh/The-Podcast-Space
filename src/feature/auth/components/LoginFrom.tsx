@@ -118,7 +118,11 @@ export function LoginFrom() {
               className="w-full cursor-pointer p-5"
               disabled={isGooleLoginLoading}
             >
-              <FcGoogle className="w-8 h-8" />
+              <FcGoogle
+                className={`w-8 h-8 ${
+                  isGooleLoginLoading ? "invisible" : "visible"
+                }`}
+              />
               <LoadingSwap isLoading={isGooleLoginLoading}>
                 Login with Google
               </LoadingSwap>
