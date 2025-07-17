@@ -1,4 +1,3 @@
-// components/TextCycle.tsx
 import { cn } from "@/lib/utils";
 import styles from "../../styles/RotatingText.module.css";
 
