@@ -100,7 +100,7 @@ export default function RoomUI({
   const { roomName, numberOfParticipants, isRoomCreating } = useRoom();
   const isCreating = isRoomCreating ?? false;
   const wsRef = useRef<WebSocket | null>(null);
-  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const wsProtocol = window.location.protocol === "https:" ? "wss:" : "wss:";
   const wsPort = process.env.NEXT_PUBLIC_WS_PORT;
   const wsHost = process.env.NEXT_PUBLIC_WS_HOST;
   const socket = new WebSocket(`${wsProtocol}//${wsHost}:${wsPort}`);
@@ -251,6 +251,8 @@ export default function RoomUI({
   useEffect(() => {
     wsRef.current = socket;
     setWs(socket);
+    console.log(`${wsProtocol}//${wsHost}:${wsPort}`);
+    console.log("ws:   " + socket.url);
     socket.onopen = () => {
       console.log("Websocket Connected");
 

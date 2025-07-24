@@ -103,7 +103,7 @@ export default function EditProfile() {
 
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center gap-4 ">
-      <Card className="p-6 flex flex-col items-center justify-center gap-10 bg-[linear-gradient(to_bottom,_#171717,_#171717,_#171717,_#1b3784)] border-none rounded-3xl py-12 lg:px-8 lg:w-160 lg:h-150">
+      <Card className="p-6 flex flex-col items-center justify-center gap-10 bg-[linear-gradient(to_bottom,_#171717,_#171717,_#171717,_#1b3784)]  border-none rounded-3xl py-12 lg:px-8 lg:w-160 lg:h-150">
         <div className="text-2xl font-bold text-white">EDIT PROFILE</div>
         <div className="relative">
           <Avatar className="w-32 h-32">
@@ -159,7 +159,7 @@ export default function EditProfile() {
         <Button
           onClick={updateUserData}
           disabled={uploading || !hasChanges}
-          className="min-w-85 lg:min-w-130 bg-amber-600 text-white"
+          className="min-w-75 lg:min-w-130 bg-amber-600 text-white"
         >
           {uploading ? "Saving..." : "Save Changes"}
         </Button>
